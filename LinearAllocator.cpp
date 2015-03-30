@@ -1,6 +1,4 @@
 #include "LinearAllocator.h"
-#include <cstdint>
-#include <new>
 
 CLinearAllocator::CLinearAllocator(unsigned int l_Size, void *l_MemAddress) : CAllocator(l_Size, l_MemAddress)
 {
@@ -14,8 +12,7 @@ CLinearAllocator::~CLinearAllocator()
 
 void *CLinearAllocator::Allocate(unsigned int l_Size, unsigned int l_Aligment)
 {
-    //unsigned int l_NewMemAddress = ((unsigned int)m_CurrentAddress + l_Aligment - 1) & ~(l_Aligment - 1);
-    unsigned int l_Offset = l_Aligment - (((unsigned int) m_CurrentAddress) & ((unsigned int) l_Aligment - 1));
+    uintptr_t l_Offset = l_Aligment - (((uintptr_t) m_CurrentAddress) & ((uintptr_t) l_Aligment - 1));
     l_Offset = (l_Offset == l_Aligment) ? 0 : l_Offset;
 
     if(m_UsedMemory + l_Offset + l_Size > m_Size) return nullptr;

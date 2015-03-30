@@ -11,6 +11,11 @@ CAllocator::CAllocator(unsigned int l_Size, void *l_MemAddress)
 
 CAllocator::~CAllocator()
 {
+    m_Size = 0;
+    m_MemAddress = nullptr;
+
+    m_UsedMemory = 0;
+    m_NumAllocations = 0;
 }
 
 unsigned int CAllocator::GetSize(void)

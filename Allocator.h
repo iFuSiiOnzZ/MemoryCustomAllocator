@@ -22,5 +22,7 @@ class CAllocator
         unsigned int GetSize(void);
         unsigned int GetUsedMemory(void);
         unsigned int GetNumAllocations(void);
-};
 
+        template <class T> T    *MakeNew(void) { return new (Allocate(sizeof(T), __alignof(T))) T(); }
+        template <class T> void  MakeDelete(T *l_ClassPtr) { if(l_ClassPtr){l_ClassPtr->~T(); Deallocate(l_ClassPtr);} }
+};
