@@ -1,42 +1,39 @@
 #include "StackAllocator.h"
+#include <assert.h>
 
 CStackAllocator::CStackAllocator(unsigned int l_Size, void *l_MemAddress) : CAllocator(l_Size, l_MemAddress)
 {
     m_CurrentAddress = l_MemAddress;
-    m_SizeOfOffset = sizeof(unsigned int);
 }
 
 CStackAllocator::~CStackAllocator()
 {
-    m_CurrentAddress = nullptr;
-    m_SizeOfOffset = 0;
+    m_CurrentAddress = 0;
 }
 
-void *CStackAllocator::Allocate(unsigned int l_Size, unsigned int l_Aligment)
+void *CStackAllocator::Allocate(unsigned int l_Size, unsigned int l_Alignment)
 {
-    l_Size += m_SizeOfOffset;
-    unsigned int l_CurrentOffset =  (unsigned int) ((uintptr_t) m_CurrentAddress - (uintptr_t) m_MemAddress);
+    unsigned int l_Offset = alignOffsetWithHeader(m_CurrentAddress, l_Alignment, sizeof(struct AllocHeader));
+    unsigned int l_TotalSize = l_Offset + l_Size;
 
-    uintptr_t l_Offset = l_Aligment - (((uintptr_t) m_CurrentAddress) & ((uintptr_t) l_Aligment - 1));
-    l_Offset = (l_Offset == l_Aligment) ? 0 : l_Offset;
+    if(m_UsedMemory + l_TotalSize > m_Size) return 0;
+    unsigned int l_NewMemAddress = (unsigned int) m_CurrentAddress + l_Offset;
 
-    if(m_UsedMemory + l_Offset + l_Size > m_Size) return nullptr;
-
-    uintptr_t l_NewMemAddress = (uintptr_t) m_CurrentAddress + l_Offset;
-    *((unsigned int *) l_NewMemAddress) = l_CurrentOffset;
+    struct AllocHeader *l_AllocHeader = (struct AllocHeader *) ((unsigned int) l_NewMemAddress - sizeof(struct AllocHeader));
+    l_AllocHeader->m_OffsetPos = (unsigned int) m_CurrentAddress - (unsigned int) m_MemAddress;
 
     m_CurrentAddress = (void *) (l_NewMemAddress + l_Size);
-    m_UsedMemory += l_Size + l_Offset;
+    m_UsedMemory += l_TotalSize;
     m_NumAllocations++;
 
-    return (void *) (l_NewMemAddress + m_SizeOfOffset);
+    return (void *) l_NewMemAddress;
 }
 
 void CStackAllocator::Deallocate(void* l_MemAddress)
 {
-    unsigned int l_CurrentOffset = *((unsigned int *)((uintptr_t) l_MemAddress - m_SizeOfOffset));
+    struct AllocHeader *l_AllocHeader = (struct AllocHeader *) ((unsigned int) l_MemAddress - sizeof(struct AllocHeader));
 
-    m_UsedMemory -= ((uintptr_t) m_CurrentAddress - ((uintptr_t) l_MemAddress - m_SizeOfOffset));
-    m_CurrentAddress = (void *) ((uintptr_t) m_MemAddress + l_CurrentOffset);
+    m_UsedMemory -= (unsigned int) m_CurrentAddress - ((unsigned int) m_MemAddress + l_AllocHeader->m_OffsetPos);
+    m_CurrentAddress = (void *) ((unsigned int) m_MemAddress + l_AllocHeader->m_OffsetPos);
     m_NumAllocations--;
 }

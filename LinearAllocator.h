@@ -10,7 +10,7 @@ class CLinearAllocator : public CAllocator
         CLinearAllocator(unsigned int l_Size, void *l_MemAddress);
         ~CLinearAllocator();
         
-        void *Allocate(unsigned int l_Size, unsigned int l_Aligment);
+        void *Allocate(unsigned int l_Size, unsigned int l_Alignment);
         void  Deallocate(void *l_MemAddress);
         void  Reset(void);
 };

@@ -7,25 +7,25 @@ CLinearAllocator::CLinearAllocator(unsigned int l_Size, void *l_MemAddress) : CA
 
 CLinearAllocator::~CLinearAllocator()
 {
-    m_CurrentAddress = nullptr;
+    m_CurrentAddress = 0;
 }
 
-void *CLinearAllocator::Allocate(unsigned int l_Size, unsigned int l_Aligment)
+void *CLinearAllocator::Allocate(unsigned int l_Size, unsigned int l_Alignment)
 {
-    uintptr_t l_Offset = l_Aligment - (((uintptr_t) m_CurrentAddress) & ((uintptr_t) l_Aligment - 1));
-    l_Offset = (l_Offset == l_Aligment) ? 0 : l_Offset;
+    unsigned int l_Offset = alignOffset(m_CurrentAddress, l_Alignment);
+    unsigned int l_TotalSize = l_Offset + l_Size;
 
-    if(m_UsedMemory + l_Offset + l_Size > m_Size) return nullptr;
-    uintptr_t l_NewMemAddress = (uintptr_t) m_CurrentAddress + l_Offset;
+    if(m_UsedMemory + l_TotalSize > m_Size) return 0;
+    unsigned int l_NewMemAddress = (unsigned int) m_CurrentAddress + l_Offset;
     
     m_CurrentAddress = (void *) (l_NewMemAddress + l_Size);
-    m_UsedMemory += l_Size + l_Offset;
+    m_UsedMemory += l_TotalSize;
     m_NumAllocations++;
 
     return (void *) l_NewMemAddress;
 }
 
-void CLinearAllocator::Deallocate(void* l_MemAddress)
+void CLinearAllocator::Deallocate(void *l_MemAddress)
 {
 }
 
