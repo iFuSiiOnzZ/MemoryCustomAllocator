@@ -17,7 +17,7 @@ void *CLinearAllocator::Allocate(unsigned int l_Size, unsigned int l_Alignment)
 
     if(m_UsedMemory + l_TotalSize > m_Size) return 0;
     unsigned int l_NewMemAddress = (unsigned int) m_CurrentAddress + l_Offset;
-    
+
     m_CurrentAddress = (void *) (l_NewMemAddress + l_Size);
     m_UsedMemory += l_TotalSize;
     m_NumAllocations++;

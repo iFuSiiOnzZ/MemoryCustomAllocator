@@ -5,6 +5,7 @@
 #include "Allocator.h"
 #include "StackAllocator.h"
 #include "LinearAllocator.h"
+#include "FreeListAllocator.h"
 
 #define B   1
 #define KB  1024
@@ -18,30 +19,29 @@ struct test_t
     float x, y, z;
 };
 
-
 int main(int argc, char *argv[])
 {
-    void *l_pMem = (void *) malloc (512);
-    CAllocator *l_pAllocator = new CStackAllocator(512, l_pMem);
+    void *l_pMem = (void *) malloc (64);
+    CAllocator *l_pAllocator = new CFreeListAllocator(64, l_pMem);
 
     int *i = (int *) l_pAllocator->Allocate(sizeof(int), __alignof(int));
     //*i = 123;
-   
+
     float *f = (float *) l_pAllocator->Allocate(sizeof(float), __alignof(float));
     //*f = 3.1415f;
 
     test_t *t = (test_t *) l_pAllocator->Allocate(sizeof(test_t), __alignof(test_t));
     //t->x = t->y = t->z = 3.1415f;
 
-    //printf("i: %x\n", i);
-    //printf("f: %x\n", f);
-    //printf("t: %x\n", t);
-
     printf("Allocated Mem: %d\n", l_pAllocator->GetUsedMemory());
 
-    l_pAllocator->Deallocate(t);
-    l_pAllocator->Deallocate(f);
     l_pAllocator->Deallocate(i);
+    l_pAllocator->Deallocate(f);
+    l_pAllocator->Deallocate(t);
+
+    t = (test_t *) l_pAllocator->Allocate(sizeof(test_t), __alignof(test_t));
+    t = (test_t *) l_pAllocator->Allocate(sizeof(test_t), __alignof(test_t));
+    t = (test_t *) l_pAllocator->Allocate(sizeof(test_t), __alignof(test_t));
 
     printf("Allocated Mem: %d\n", l_pAllocator->GetUsedMemory());
 
