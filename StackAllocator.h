@@ -8,13 +8,13 @@ class CStackAllocator : public CAllocator
 
         struct AllocHeader
         {
-            unsigned int m_OffsetPos;
+            size_t m_OffsetPos;
         };
 
     public:
-        CStackAllocator(unsigned int l_Size, void *l_MemAddress);
+        CStackAllocator(size_t l_Size, void *l_MemAddress);
         ~CStackAllocator();
 
-        void *Allocate(unsigned int l_Size, unsigned int l_Alignment);
+        void *Allocate(size_t l_Size, uint32_t l_Alignment);
         void  Deallocate(void *l_MemAddress);
 };
