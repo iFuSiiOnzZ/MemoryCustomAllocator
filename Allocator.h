@@ -34,18 +34,21 @@ class CAllocator
     private:
 
     public:
-        CAllocator(size_t l_Size, void *l_MemAddress);
+        CAllocator(size_t Size, void *l_MemAddress);
         virtual ~CAllocator();
 
-        virtual void *Allocate(size_t l_Size, uint32_t Aligment) = 0;
-        virtual void  Deallocate(void *l_MemAddress) = 0;
+        virtual void *Allocate(size_t Size, uint32_t Aligment) = 0;
+        virtual void  Deallocate(void *MemAddress) = 0;
 
         inline size_t GetSize(void) { return m_TotalSize; }
         inline size_t GetUsedMemory(void) { return m_UsedMemory; }
         inline size_t GetNumAllocations(void) { return m_NumAllocations; }
 
-        template <class T> T    *MakeNew(void) { return new (Allocate(sizeof(T), __alignof(T))) T(); }
-        template <class T> void  MakeDelete(T *l_ClassPtr) { if(l_ClassPtr){l_ClassPtr->~T(); Deallocate(l_ClassPtr);} }
+        template <class T, class... ArgsType> T *MakeNew(ArgsType... Args) { return new (Allocate(sizeof(T), __alignof(T))) T(Args...); }
+        template <class T> void  MakeDelete(T *ClassPtr) { if(ClassPtr){ ClassPtr->~T(); Deallocate(ClassPtr); } }
+
+        template <class T> T *New(size_t NumElements = 1) { return (T *) Allocate(sizeof(T) * NumElements, __alignof(T)); }
+        void Delete(void *l_MemAddress) { Deallocate(l_MemAddress); }
 };
 
 inline uint32_t alignOffset(void *l_Address, uint32_t l_Alignment = 4)
