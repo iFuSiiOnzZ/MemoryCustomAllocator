@@ -27,7 +27,7 @@ void *CFreeListAllocator::Allocate(size_t l_Size, uint32_t l_Alignment)
         l_Offset = alignOffsetWithHeader(l_FreeBlock, sizeof(struct AllocHeader), l_Alignment);
         l_TotalSize = l_Size + l_Offset;
 
-        if(l_FreeBlock->m_Size > l_TotalSize) break;
+        if(l_FreeBlock->m_Size >= l_TotalSize) break;
 
         l_PrevBlock = l_FreeBlock;
         l_FreeBlock = l_FreeBlock->m_Next;
